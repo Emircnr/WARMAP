@@ -1,0 +1,1104 @@
+<!DOCTYPE html>
+<html lang="tr" class="theme-dark">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Arbitraj Radarı ⚡ Paribu ⇄ Binance - Detaylı İstatistik</title>
+<style>
+  .theme-dark{
+    --bg:#0b1220; --panel:#111a2b; --panel2:#0f1626; --text:#e6edf6;
+    --muted:#9fb0ca; --accent:#60a5fa; --border:#17243e;
+    --headerStart:#0e172a; --headerEnd:#0b1220;
+    --chipBg:#1a243e; --chipBorder:#2a3d64;
+  }
+  .theme-light{
+    --bg:#ffffff; --panel:#f3f6fb; --panel2:#ffffff; --text:#0b1220;
+    --muted:#4a5568; --accent:#2563eb; --border:#d7deea;
+    --headerStart:#eaf1ff; --headerEnd:#ffffff;
+    --chipBg:#eef3ff; --chipBorder:#c8d6f5;
+  }
+
+  :root{
+    --table-font:16px; --cell-pad-y:10px; --cell-pad-x:8px; --row-gap:4px;
+    --cell-radius:10px; --container-max:1400px;
+  }
+
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{height:100%;background:var(--bg);color:var(--text);font-family:Inter,system-ui,Segoe UI,Roboto,Arial}
+  header{display:flex;align-items:center;justify-content:space-between;padding:12px 16px;background:linear-gradient(180deg,var(--headerStart),var(--headerEnd));border-bottom:1px solid var(--border)}
+  header h1{font-size:18px}
+  header .sub{color:var(--muted);font-size:11px}
+  header .rightBox{display:flex;gap:10px;align-items:center}
+  .btn{background:var(--accent);color:#091220;border:none;border-radius:8px;padding:8px 12px;font-weight:600;cursor:pointer;font-size:13px}
+  .ghost{background:var(--panel);color:var(--text);border:1px solid var(--border)}
+  .btn-stats{background:#f59e0b;color:#000}
+  .btn-danger{background:#ef4444;color:#fff}
+  .btn-success{background:#10b981;color:#fff}
+
+  .controls{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:10px;padding:10px 16px;background:var(--panel);border-bottom:1px solid var(--border)}
+  .ctrl{background:var(--panel2);border:1px solid var(--border);border-radius:10px;padding:10px}
+  .ctrl label{font-size:11px;color:var(--muted);display:block;margin-bottom:4px}
+  .row{display:flex;gap:6px;align-items:center}
+  input[type="text"],input[type="number"],select{
+    width:100%;background:var(--panel2);border:1px solid var(--border);color:var(--text);
+    border-radius:8px;padding:8px 10px;font-size:13px;outline:none
+  }
+  input[type="range"]{width:100%}
+  .chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:6px}
+  .chip{display:inline-flex;gap:4px;align-items:center;background:var(--chipBg);border:1px solid var(--chipBorder);border-radius:999px;padding:4px 8px;font-size:11px}
+  .chip button{all:unset;cursor:pointer;color:#4f79ff}
+
+  .tableWrap{padding:10px 16px;max-width:var(--container-max);margin:0 auto}
+  table{width:100%;border-collapse:separate;border-spacing:0 var(--row-gap);table-layout:fixed}
+  thead th{font-size:11px;color:var(--muted);text-align:center;padding:0 6px}
+  thead th:first-child{text-align:left}
+  tbody tr{background:var(--panel2);border:1px solid var(--border)}
+  tbody td{padding:var(--cell-pad-y) var(--cell-pad-x);font-size:var(--table-font)}
+  tbody tr td:first-child{border-top-left-radius:var(--cell-radius);border-bottom-left-radius:var(--cell-radius)}
+  tbody tr td:last-child{border-top-right-radius:var(--cell-radius);border-bottom-right-radius:var(--cell-radius)}
+  .mono{font-variant-numeric:tabular-nums;font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,monospace}
+  .muted{color:var(--muted)}
+  .coinCell{display:flex;align-items:center;gap:8px}
+  .coinSym{font-weight:700;font-size:15px}
+  .alCell,.satCell,.pctCell,.depthCell{text-align:center;font-weight:700}
+
+  .statusBadge{display:inline-block;padding:3px 6px;border-radius:4px;font-size:10px;font-weight:600;background:#10b981;color:white;margin-left:8px}
+
+  /* Modal */
+  .modal-overlay{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.8);display:none;justify-content:center;align-items:flex-start;z-index:1000;padding:20px;overflow-y:auto}
+  .modal-overlay.active{display:flex}
+  .modal{background:var(--panel);border:1px solid var(--border);border-radius:16px;padding:20px;width:100%;max-width:1200px;margin:20px auto}
+  .modal-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px}
+  .modal-header h2{font-size:18px}
+  .modal-close{background:none;border:none;color:var(--muted);font-size:24px;cursor:pointer}
+  .modal-body{max-height:70vh;overflow-y:auto}
+  .modal-footer{margin-top:16px;display:flex;gap:10px;justify-content:flex-end;flex-wrap:wrap}
+
+  /* Stats */
+  .stats-summary{display:grid;grid-template-columns:repeat(6,1fr);gap:10px;margin-bottom:16px}
+  .stats-card{background:var(--panel2);border:1px solid var(--border);border-radius:10px;padding:12px;text-align:center}
+  .stats-card .value{font-size:22px;font-weight:700;color:#f59e0b}
+  .stats-card .label{font-size:10px;color:var(--muted);margin-top:2px}
+  .stats-card.green .value{color:#10b981}
+  .stats-card.blue .value{color:#60a5fa}
+  .stats-card.purple .value{color:#a78bfa}
+
+  .tabs{display:flex;gap:8px;margin-bottom:16px;border-bottom:1px solid var(--border);padding-bottom:10px}
+  .tab{padding:8px 16px;border-radius:8px;cursor:pointer;font-size:13px;background:var(--panel2);border:1px solid var(--border)}
+  .tab.active{background:#f59e0b;color:#000;border-color:#f59e0b}
+
+  .stats-table{width:100%;border-collapse:collapse;font-size:13px}
+  .stats-table th,.stats-table td{padding:10px 8px;text-align:left;border-bottom:1px solid var(--border)}
+  .stats-table th{color:var(--muted);font-size:11px;font-weight:600;background:var(--panel2);position:sticky;top:0}
+  .stats-table .count{font-weight:700;color:#f59e0b;font-size:16px}
+  .stats-table .max-pct{color:#22c55e;font-weight:600}
+  .stats-table .clickable{cursor:pointer}
+  .stats-table .clickable:hover{background:var(--chipBg)}
+  
+  .detail-row{background:var(--panel);border-left:3px solid #f59e0b}
+  .detail-content{padding:12px;font-size:12px}
+  .detail-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:8px;margin-top:8px}
+  .detail-item{background:var(--panel2);border:1px solid var(--border);border-radius:8px;padding:8px}
+  .detail-item .pct{font-weight:700;color:#22c55e}
+  .detail-item .time{color:var(--muted);font-size:11px}
+  .detail-item .qty{color:#60a5fa;font-size:11px}
+  .detail-item .duration{color:#a78bfa;font-size:11px}
+
+  .range-filter{display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap;align-items:center}
+  .range-filter label{font-size:12px;color:var(--muted)}
+  .range-filter input{width:80px;padding:6px;font-size:12px}
+  .range-filter select{width:120px;padding:6px;font-size:12px}
+
+  .no-stats{text-align:center;color:var(--muted);padding:40px}
+
+  @media(max-width:900px){
+    .controls{grid-template-columns:1fr 1fr}
+    .stats-summary{grid-template-columns:repeat(3,1fr)}
+  }
+  @media(max-width:600px){
+    .controls{grid-template-columns:1fr}
+    .stats-summary{grid-template-columns:repeat(2,1fr)}
+  }
+</style>
+</head>
+<body>
+<header>
+  <div>
+    <h1>Arbitraj Radarı ⚡ Paribu ⇄ Binance <span class="statusBadge" id="wsStatus">BAĞLANIYOR</span></h1>
+    <div class="sub">
+      USDT→TRY: <span id="usdtry" class="mono">—</span>
+      · BTCUSDT: <span id="btc" class="mono">—</span>
+      · Toplam Sinyal: <span id="signalCount" class="mono" style="color:#f59e0b;font-weight:700">0</span>
+      · Aktif Fark: <span id="activeCount" class="mono" style="color:#22c55e;font-weight:700">0</span>
+    </div>
+  </div>
+  <div class="rightBox">
+    <button id="showStats" class="btn btn-stats">📊 Detaylı İstatistik</button>
+    <a href="/stats" class="btn" style="background:#10b981;color:#000;text-decoration:none;">📈 7/24 Kayıtlar</a>
+    <button id="toggleTheme" class="btn ghost">Tema</button>
+  </div>
+</header>
+
+<section class="controls">
+  <div class="ctrl">
+    <label>Coin Ekle / Çıkar</label>
+    <div class="row">
+      <input id="coinIn" type="text" placeholder="BTC, ETH, XRP"/>
+      <button id="add" class="btn">Ekle</button>
+      <button id="clear" class="btn ghost">Temizle</button>
+    </div>
+    <div id="chips" class="chips"></div>
+  </div>
+
+  <div class="ctrl">
+    <label>Yenileme (0.1–2.0 sn)</label>
+    <div class="row">
+      <input id="rng" type="range" min="100" max="2000" step="50">
+      <div class="mono" id="rngLbl">—</div>
+    </div>
+  </div>
+
+  <div class="ctrl">
+    <label>Min. % Fark (Görüntüleme)</label>
+    <input id="minPct" type="number" step="0.01" min="0" value="0.00"/>
+  </div>
+
+  <div class="ctrl">
+    <label>İstatistik Eşiği (%)</label>
+    <div class="row">
+      <input id="statsThreshold" type="number" step="0.05" min="0" value="0.3"/>
+      <span class="muted" style="font-size:11px">üstü kaydet</span>
+    </div>
+  </div>
+</section>
+
+<section class="controls" style="grid-template-columns:1fr 1fr 1fr">
+  <div class="ctrl">
+    <label>Durum</label>
+    <div class="muted" style="font-size:11px;line-height:1.5">
+      İzlenen: <span id="cnt">0</span> · Hata: <span id="err">0</span><br>
+      Son: <span id="last" class="mono">—</span> · İstek: <span id="reqTime" class="mono">—</span>
+    </div>
+  </div>
+  <div class="ctrl">
+    <label>Aktif Farklar (şu an)</label>
+    <div id="activeDiffs" class="muted" style="font-size:11px;max-height:50px;overflow-y:auto">—</div>
+  </div>
+  <div class="ctrl">
+    <label>Tema</label>
+    <select id="themeSel">
+      <option value="dark">Koyu</option>
+      <option value="light">Açık</option>
+    </select>
+  </div>
+</section>
+
+<section class="tableWrap">
+  <table>
+    <colgroup>
+      <col style="width:18%">
+      <col style="width:16%">
+      <col style="width:16%">
+      <col style="width:12%">
+      <col style="width:14%">
+      <col style="width:12%">
+      <col style="width:12%">
+    </colgroup>
+    <thead>
+      <tr>
+        <th style="text-align:left">Coin</th>
+        <th>AL (Düşük)</th>
+        <th>SAT (Yüksek)</th>
+        <th>% Fark</th>
+        <th>Paribu Miktar</th>
+        <th>TL Değer</th>
+        <th>Yön/Süre</th>
+      </tr>
+    </thead>
+    <tbody id="tbody"></tbody>
+  </table>
+</section>
+
+<!-- Detaylı İstatistik Modal -->
+<div id="statsModal" class="modal-overlay">
+  <div class="modal">
+    <div class="modal-header">
+      <h2>📊 Detaylı Arbitraj İstatistikleri</h2>
+      <button class="modal-close" id="closeStats">×</button>
+    </div>
+    <div class="modal-body">
+      <!-- Özet Kartları -->
+      <div class="stats-summary">
+        <div class="stats-card">
+          <div class="value" id="totalSignals">0</div>
+          <div class="label">Toplam Sinyal</div>
+        </div>
+        <div class="stats-card green">
+          <div class="value" id="uniqueCoins">0</div>
+          <div class="label">Farklı Coin</div>
+        </div>
+        <div class="stats-card">
+          <div class="value" id="maxPctEver">%0.00</div>
+          <div class="label">En Yüksek Fark</div>
+        </div>
+        <div class="stats-card blue">
+          <div class="value" id="avgDuration">0s</div>
+          <div class="label">Ort. Süre</div>
+        </div>
+        <div class="stats-card purple">
+          <div class="value" id="totalVolume">0 TL</div>
+          <div class="label">Toplam Hacim</div>
+        </div>
+        <div class="stats-card green">
+          <div class="value" id="todaySignals">0</div>
+          <div class="label">Bugün</div>
+        </div>
+      </div>
+
+      <!-- Filtreler -->
+      <div class="range-filter">
+        <label>Min %:</label>
+        <input type="number" id="filterMinPct" value="0" step="0.1">
+        <label>Max %:</label>
+        <input type="number" id="filterMaxPct" value="100" step="0.1">
+        <label>Coin:</label>
+        <select id="filterCoin"><option value="">Tümü</option></select>
+        <label>Sırala:</label>
+        <select id="sortBy">
+          <option value="count">Sinyal Sayısı</option>
+          <option value="maxPct">Max Fark</option>
+          <option value="avgPct">Ort. Fark</option>
+          <option value="totalVolume">Hacim</option>
+          <option value="avgDuration">Ort. Süre</option>
+        </select>
+        <button class="btn ghost" id="applyFilter">Uygula</button>
+      </div>
+
+      <!-- Tabs -->
+      <div class="tabs">
+        <div class="tab active" data-tab="overview">📈 Genel Bakış</div>
+        <div class="tab" data-tab="detailed">📋 Detaylı Kayıtlar</div>
+        <div class="tab" data-tab="ranges">📊 Fark Aralıkları</div>
+        <div class="tab" data-tab="timeline">⏱️ Zaman Çizelgesi</div>
+      </div>
+
+      <!-- Tab İçerikleri -->
+      <div id="tab-overview" class="tab-content">
+        <table class="stats-table">
+          <thead>
+            <tr>
+              <th>Coin</th>
+              <th>Sinyal</th>
+              <th>Max %</th>
+              <th>Ort. %</th>
+              <th>Ort. Miktar</th>
+              <th>Ort. TL</th>
+              <th>Ort. Süre</th>
+              <th>Son Sinyal</th>
+            </tr>
+          </thead>
+          <tbody id="statsBody"></tbody>
+        </table>
+      </div>
+
+      <div id="tab-detailed" class="tab-content" style="display:none">
+        <table class="stats-table">
+          <thead>
+            <tr>
+              <th>Coin</th>
+              <th>Fark %</th>
+              <th>Miktar</th>
+              <th>TL Değer</th>
+              <th>Süre</th>
+              <th>Tarih/Saat</th>
+            </tr>
+          </thead>
+          <tbody id="detailedBody"></tbody>
+        </table>
+      </div>
+
+      <div id="tab-ranges" class="tab-content" style="display:none">
+        <div id="rangesContent"></div>
+      </div>
+
+      <div id="tab-timeline" class="tab-content" style="display:none">
+        <div id="timelineContent"></div>
+      </div>
+
+      <div id="noStats" class="no-stats" style="display:none">
+        Henüz sinyal kaydedilmedi. İzlemeye devam edin...
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button id="exportStats" class="btn ghost">📥 JSON İndir</button>
+      <button id="exportCSV" class="btn ghost">📥 CSV İndir</button>
+      <button id="clearStats" class="btn btn-danger">🗑️ Sıfırla</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// CORS Check
+if (window.location.protocol === 'file:') {
+  document.body.innerHTML = '<div style="font-family:system-ui;padding:40px;background:#0b1220;color:#e6edf6;text-align:center"><h1 style="color:#ef4444">🔴 HATA!</h1><h2 style="color:#f59e0b">DOSYADAN AÇILAMAZ!</h2><p>Tarayıcıda şunu aç: <code style="background:#10b981;color:#000;padding:5px 10px;border-radius:4px">http://localhost:3000</code></p></div>';
+  throw new Error('CORS hatası');
+}
+
+const $ = s => document.querySelector(s);
+const $$ = s => document.querySelectorAll(s);
+const LS = {
+  get(k, d){ try{ const v = localStorage.getItem(k); return v==null ? d : JSON.parse(v); }catch{ return d; } },
+  set(k, v){ try{ localStorage.setItem(k, JSON.stringify(v)); }catch{} }
+};
+
+function norm(s){ return s ? s.trim().toUpperCase().replace(/[İÇĞÖŞÜ]/g, c => ({İ:'I',Ç:'C',Ğ:'G',Ö:'O',Ş:'S',Ü:'U'}[c]||c)) : ''; }
+function fmtPctTR(n, d=2){ return (n==null||!isFinite(n)) ? '—' : '%'+Number(n).toLocaleString('tr-TR',{minimumFractionDigits:d, maximumFractionDigits:d}); }
+function fmt4(n){ return (n==null||!isFinite(n)) ? '—' : Number(n).toFixed(4); }
+function fmtNum(n){ return (n==null||!isFinite(n)) ? '—' : Number(n).toLocaleString('tr-TR',{maximumFractionDigits:4}); }
+function fmtTL(n){ return (n==null||!isFinite(n)) ? '—' : Number(n).toLocaleString('tr-TR',{maximumFractionDigits:0}) + ' TL'; }
+function nowStr(){ return new Date().toLocaleTimeString('tr-TR'); }
+function nowFull(){ return new Date().toLocaleString('tr-TR'); }
+function todayStr(){ return new Date().toLocaleDateString('tr-TR'); }
+
+// ===== STATE =====
+let watched = new Set(LS.get('arbi:watched', []));
+let refreshMs = Number(LS.get('arbi:interval', 300));
+let minPctFilter = Number(LS.get('arbi:minpct', 0.00));
+let themeMode = LS.get('arbi:theme', 'dark');
+let statsThreshold = Number(LS.get('arbi:statsThreshold', 0.3));
+
+// ===== DETAYLI İSTATİSTİK SİSTEMİ =====
+let coinStats = LS.get('arbi:coinStatsV2', {});
+
+// Aktif fark izleme (süre hesabı için)
+const activeSignals = new Map();
+
+function recordSignal(sym, pct, qty, value) {
+  if (pct < statsThreshold) return;
+  
+  const now = Date.now();
+  
+  if (!activeSignals.has(sym)) {
+    activeSignals.set(sym, { startTime: now, lastPct: pct, lastQty: qty, lastValue: value });
+  } else {
+    const active = activeSignals.get(sym);
+    active.lastPct = Math.max(active.lastPct, pct);
+    active.lastQty = qty;
+    active.lastValue = value;
+  }
+}
+
+function endSignal(sym) {
+  if (!activeSignals.has(sym)) return;
+  
+  const active = activeSignals.get(sym);
+  const duration = (Date.now() - active.startTime) / 1000;
+  
+  if (!coinStats[sym]) {
+    coinStats[sym] = {
+      count: 0, maxPct: 0, sumPct: 0, lastTime: '',
+      totalQty: 0, totalValue: 0, totalDuration: 0,
+      records: [], rangeBreakdown: {}
+    };
+  }
+  
+  const s = coinStats[sym];
+  s.count++;
+  s.maxPct = Math.max(s.maxPct, active.lastPct);
+  s.sumPct += active.lastPct;
+  s.lastTime = nowFull();
+  s.totalQty += active.lastQty;
+  s.totalValue += active.lastValue;
+  s.totalDuration += duration;
+  
+  s.records.push({
+    pct: active.lastPct,
+    qty: active.lastQty,
+    value: active.lastValue,
+    duration: duration,
+    time: nowFull(),
+    date: todayStr()
+  });
+  
+  if (s.records.length > 500) s.records = s.records.slice(-500);
+  
+  const rangeKey = getRangeKey(active.lastPct);
+  s.rangeBreakdown[rangeKey] = (s.rangeBreakdown[rangeKey] || 0) + 1;
+  
+  LS.set('arbi:coinStatsV2', coinStats);
+  activeSignals.delete(sym);
+  updateSignalCounter();
+}
+
+function getRangeKey(pct) {
+  if (pct < 0.3) return '0-0.3';
+  if (pct < 0.4) return '0.3-0.4';
+  if (pct < 0.5) return '0.4-0.5';
+  if (pct < 0.6) return '0.5-0.6';
+  if (pct < 0.7) return '0.6-0.7';
+  if (pct < 0.8) return '0.7-0.8';
+  if (pct < 0.9) return '0.8-0.9';
+  if (pct < 1.0) return '0.9-1.0';
+  if (pct < 1.5) return '1.0-1.5';
+  if (pct < 2.0) return '1.5-2.0';
+  return '2.0+';
+}
+
+function updateSignalCounter() {
+  const total = Object.values(coinStats).reduce((sum, c) => sum + c.count, 0);
+  $('#signalCount').textContent = total;
+  $('#activeCount').textContent = activeSignals.size;
+}
+
+// ===== MAIN LOGIC =====
+let timer = null, updating = false, errors = 0, usdtry = null;
+let lastUsdtUpdate = 0;
+const USDT_CACHE_MS = 5000;
+const coinCache = new Map();
+const COIN_CACHE_TTL = 10000;
+
+const elUsd = $('#usdtry'), elLast = $('#last'), elCnt = $('#cnt'), elErr = $('#err'),
+      elReqTime = $('#reqTime'), elBody = $('#tbody'), elRng = $('#rng'), 
+      elRngLbl = $('#rngLbl'), elMin = $('#minPct'), elThemeSel = $('#themeSel'), 
+      elBtc = $('#btc'), elStatsThreshold = $('#statsThreshold'),
+      elActiveDiffs = $('#activeDiffs'), elWsStatus = $('#wsStatus');
+
+const PROXY_URL = window.location.origin;
+
+async function jget(url){
+  const res = await fetch(url, {cache:'no-store'});
+  if(!res.ok) throw new Error('HTTP '+res.status);
+  return res.json();
+}
+
+// WebSocket durumu kontrol
+async function checkWsStatus() {
+  try {
+    const health = await jget(PROXY_URL + '/health');
+    if (health.websocket?.connected) {
+      elWsStatus.textContent = 'CANLI';
+      elWsStatus.style.background = '#10b981';
+    } else {
+      elWsStatus.textContent = 'BAĞLANIYOR';
+      elWsStatus.style.background = '#f59e0b';
+    }
+  } catch {
+    elWsStatus.textContent = 'OFFLINE';
+    elWsStatus.style.background = '#ef4444';
+  }
+}
+setInterval(checkWsStatus, 5000);
+checkWsStatus();
+
+async function tick(){
+  if(updating || watched.size === 0) return;
+  updating = true;
+  const tickStart = performance.now();
+  
+  try {
+    const timeNow = Date.now();
+    const syms = Array.from(watched);
+    
+    // Paralel istekler - USDT, Binance ve Paribu aynı anda
+    const [usdtResult, binanceResult, paribuResult] = await Promise.all([
+      // USDT/TRY (sadece cache süresi dolmuşsa)
+      (!usdtry || (timeNow - lastUsdtUpdate) > USDT_CACHE_MS) 
+        ? Promise.race([
+            jget(PROXY_URL + '/api/paribu/orderbook?market=usdt_tl'),
+            new Promise((_, rej) => setTimeout(() => rej(new Error('timeout')), 1500))
+          ]).catch(() => null)
+        : Promise.resolve(null),
+      
+      // Binance batch ticker
+      fetch('https://api.binance.com/api/v3/ticker/bookTicker?symbols=' + 
+        encodeURIComponent(JSON.stringify(syms.map(s => s + 'USDT'))), {cache:'no-store'})
+        .then(r => r.json())
+        .catch(() => []),
+      
+      // Paribu batch orderbook
+      fetch(PROXY_URL + '/api/paribu/batch', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({ markets: syms.map(s => s.toLowerCase() + '_tl') })
+      }).then(r => r.json()).catch(() => ({ results: [] }))
+    ]);
+    
+    // USDT güncelle
+    if (usdtResult?.bids?.length > 0) {
+      usdtry = parseFloat(usdtResult.bids[0][0]);
+      lastUsdtUpdate = timeNow;
+      elUsd.textContent = usdtry.toFixed(2);
+    }
+    
+    // Binance map
+    const binanceMap = new Map((binanceResult || []).map(t => [t.symbol.replace('USDT',''), t]));
+    if(binanceMap.has('BTC')){
+      elBtc.textContent = '$' + parseFloat(binanceMap.get('BTC').bidPrice).toLocaleString('en-US',{maximumFractionDigits:0});
+    }
+
+    // Paribu map
+    const pMap = new Map();
+    if(paribuResult.results){
+      paribuResult.results.forEach(r => {
+        if(r.success && r.data){
+          const sym = r.market.replace('_tl','').replace('_TL','').toUpperCase();
+          pMap.set(sym, { data: r.data, depth: r.depth || null });
+        }
+      });
+    }
+
+    const mul = usdtry || 35;
+    const currentActive = new Set();
+
+    const jobs = syms.map(sym => {
+      const bData = binanceMap.get(sym);
+      const pInfo = pMap.get(sym);
+      
+      if(!bData || !pInfo || !pInfo.data) return null;
+      
+      const pData = pInfo.data;
+      const depth = pInfo.depth;
+      
+      if(!pData.bids || pData.bids.length === 0 || !pData.asks || pData.asks.length === 0) return null;
+
+      const pBest = {
+        bid: parseFloat(pData.bids[0][0]),
+        ask: parseFloat(pData.asks[0][0]),
+        bidQty: parseFloat(pData.bids[0][1]),
+        askQty: parseFloat(pData.asks[0][1])
+      };
+
+      const bBidTL = parseFloat(bData.bidPrice) * mul;
+      const bAskTL = parseFloat(bData.askPrice) * mul;
+
+      const diff1 = pBest.bid - bAskTL;
+      const diff2 = bBidTL - pBest.ask;
+
+      let show=false, low=0, high=0, pct=0, lowSrc='', highSrc='', qty=0, value=0, paribuSide='';
+
+      if((diff1>0 || diff2>0) && isFinite(bBidTL) && isFinite(bAskTL)){
+        show = true;
+        if(diff1 > diff2){
+          // Paribu SATIŞ (Paribu'da sat, Binance'dan al)
+          pct = (diff1 / bAskTL) * 100;
+          low = bAskTL; high = pBest.bid; lowSrc='Binance'; highSrc='Paribu';
+          paribuSide = 'sell';
+          qty = pBest.bidQty;
+          value = pBest.bid * pBest.bidQty;
+        }else{
+          // Paribu ALIŞ (Paribu'dan al, Binance'a sat)
+          pct = (diff2 / pBest.ask) * 100;
+          low = pBest.ask; high = bBidTL; lowSrc='Paribu'; highSrc='Binance';
+          paribuSide = 'buy';
+          qty = pBest.askQty;
+          value = pBest.ask * pBest.askQty;
+        }
+        
+        // Sinyal kaydet
+        if (pct >= statsThreshold) {
+          currentActive.add(sym);
+          recordSignal(sym, pct, qty, value);
+        }
+      }
+      
+      // Aktif olmayan sinyalleri kapat
+      if (!currentActive.has(sym) && activeSignals.has(sym)) {
+        endSignal(sym);
+      }
+      
+      // Derinlik bilgisi
+      const depthInfo = depth || { topBidQty: pBest.bidQty, topAskQty: pBest.askQty, topBidValue: pBest.bid * pBest.bidQty, topAskValue: pBest.ask * pBest.askQty };
+      
+      const useQty = paribuSide === 'sell' ? (depthInfo.topBidQty || qty) : (depthInfo.topAskQty || qty);
+      const useValue = paribuSide === 'sell' ? (depthInfo.topBidValue || value) : (depthInfo.topAskValue || value);
+      
+      return {
+        sym, show, low, high, pct, lowSrc, highSrc, paribuSide,
+        qty, value, 
+        topQty: useQty,
+        topValue: useValue,
+        duration: activeSignals.has(sym) ? ((Date.now() - activeSignals.get(sym).startTime) / 1000) : 0
+      };
+    });
+
+    // Artık aktif olmayan sinyalleri kapat
+    for (const [sym] of activeSignals) {
+      if (!currentActive.has(sym)) {
+        endSignal(sym);
+      }
+    }
+
+    let rows = jobs.filter(r => r && r.show && isFinite(r.pct) && r.pct >= (Number(minPctFilter)||0));
+    rows.sort((a,b)=> b.pct - a.pct);
+    draw(rows);
+    
+    // Aktif farkları göster
+    updateActiveDiffs(rows);
+    
+    elLast.textContent = nowStr();
+    elErr.textContent = errors;
+    elReqTime.textContent = (performance.now() - tickStart).toFixed(0) + 'ms';
+    updateSignalCounter();
+    
+  }catch(e){
+    console.error('Tick hata:', e);
+    errors++;
+    elErr.textContent = errors;
+  }finally{
+    updating = false;
+  }
+}
+
+function updateActiveDiffs(rows) {
+  if (rows.length === 0) {
+    elActiveDiffs.textContent = '—';
+    return;
+  }
+  const parts = rows.slice(0, 5).map(r => {
+    const sideLabel = r.paribuSide === 'sell' 
+      ? '<span style="color:#22c55e">SAT</span>' 
+      : '<span style="color:#ef4444">AL</span>';
+    return `${r.sym}: ${fmtPctTR(r.pct)} ${sideLabel} (${fmtNum(r.topQty)} adet)`;
+  });
+  elActiveDiffs.innerHTML = parts.join('<br>');
+}
+
+function draw(rows){
+  const frag = document.createDocumentFragment();
+  rows.forEach(r=>{
+    const tr = document.createElement('tr');
+
+    // Coin
+    const tdCoin = document.createElement('td');
+    tdCoin.className = 'coinCell';
+    const sym = document.createElement('span'); 
+    sym.className='coinSym'; 
+    sym.textContent = r.sym;
+    tdCoin.appendChild(sym);
+    
+    if (coinStats[r.sym] && coinStats[r.sym].count > 0) {
+      const badge = document.createElement('span');
+      badge.style.cssText = 'background:#f59e0b;color:#000;padding:2px 6px;border-radius:4px;font-size:10px;font-weight:600;margin-left:6px';
+      badge.textContent = coinStats[r.sym].count + '×';
+      tdCoin.appendChild(badge);
+    }
+    tr.appendChild(tdCoin);
+
+    // AL (düşük)
+    const tdL = document.createElement('td'); 
+    tdL.className='mono alCell';
+    tdL.textContent = fmt4(r.low);
+    tdL.style.background = (r.lowSrc==='Binance') ? '#f97316' : '#6366f1';
+    tdL.style.color = '#fff';
+    tdL.style.borderRadius = '6px';
+    tr.appendChild(tdL);
+
+    // SAT (yüksek)
+    const tdH = document.createElement('td'); 
+    tdH.className='mono satCell';
+    tdH.textContent = fmt4(r.high);
+    tdH.style.background = (r.highSrc==='Paribu') ? '#6366f1' : '#f97316';
+    tdH.style.color = '#fff';
+    tdH.style.borderRadius = '6px';
+    tr.appendChild(tdH);
+
+    // % Fark
+    const tdP = document.createElement('td'); 
+    tdP.className='mono pctCell';
+    tdP.textContent = fmtPctTR(r.pct, 2);
+    if (r.pct >= 0.5) {
+      tdP.style.background = '#22c55e';
+      tdP.style.color = '#000';
+    } else if (r.pct >= statsThreshold) {
+      tdP.style.background = '#f59e0b';
+      tdP.style.color = '#000';
+    }
+    tdP.style.borderRadius = '6px';
+    tr.appendChild(tdP);
+
+    // Miktar
+    const tdQ = document.createElement('td');
+    tdQ.className = 'mono depthCell';
+    tdQ.textContent = fmtNum(r.topQty);
+    tdQ.style.color = '#60a5fa';
+    tr.appendChild(tdQ);
+
+    // TL Değer
+    const tdV = document.createElement('td');
+    tdV.className = 'mono depthCell';
+    tdV.textContent = fmtTL(r.topValue);
+    tdV.style.color = '#a78bfa';
+    tr.appendChild(tdV);
+
+    // Süre ve Yön
+    const tdD = document.createElement('td');
+    tdD.className = 'mono depthCell';
+    if (r.paribuSide === 'sell') {
+      tdD.innerHTML = `<span style="color:#22c55e;font-weight:700">SAT</span>`;
+    } else {
+      tdD.innerHTML = `<span style="color:#ef4444;font-weight:700">AL</span>`;
+    }
+    if (r.duration > 0) {
+      tdD.innerHTML += ` <span style="color:#10b981">${r.duration.toFixed(1)}s</span>`;
+    }
+    tr.appendChild(tdD);
+
+    frag.appendChild(tr);
+  });
+  elBody.innerHTML = '';
+  elBody.appendChild(frag);
+}
+
+// ===== İSTATİSTİK MODAL =====
+function renderStatsModal() {
+  const entries = Object.entries(coinStats);
+  
+  if (entries.length === 0) {
+    $('#noStats').style.display = 'block';
+    $$('.tab-content').forEach(el => el.style.display = 'none');
+    return;
+  }
+  
+  $('#noStats').style.display = 'none';
+  
+  const minPct = parseFloat($('#filterMinPct').value) || 0;
+  const maxPct = parseFloat($('#filterMaxPct').value) || 100;
+  const filterCoin = $('#filterCoin').value;
+  const sortBy = $('#sortBy').value;
+  
+  let filtered = entries.filter(([sym, data]) => {
+    if (filterCoin && sym !== filterCoin) return false;
+    if (data.maxPct < minPct || data.maxPct > maxPct) return false;
+    return true;
+  });
+  
+  filtered.sort((a, b) => {
+    const [, aData] = a;
+    const [, bData] = b;
+    switch(sortBy) {
+      case 'count': return bData.count - aData.count;
+      case 'maxPct': return bData.maxPct - aData.maxPct;
+      case 'avgPct': return (bData.sumPct/bData.count) - (aData.sumPct/aData.count);
+      case 'totalVolume': return bData.totalValue - aData.totalValue;
+      case 'avgDuration': return (bData.totalDuration/bData.count) - (aData.totalDuration/aData.count);
+      default: return bData.count - aData.count;
+    }
+  });
+  
+  const totalSignals = filtered.reduce((sum, [_, c]) => sum + c.count, 0);
+  const uniqueCoins = filtered.length;
+  const maxPctEver = filtered.length > 0 ? Math.max(...filtered.map(([_, c]) => c.maxPct)) : 0;
+  const avgDuration = filtered.length > 0 ? 
+    filtered.reduce((sum, [_, c]) => sum + (c.totalDuration / c.count), 0) / filtered.length : 0;
+  const totalVolume = filtered.reduce((sum, [_, c]) => sum + c.totalValue, 0);
+  const today = todayStr();
+  const todaySignals = filtered.reduce((sum, [_, c]) => {
+    return sum + c.records.filter(r => r.date === today).length;
+  }, 0);
+  
+  $('#totalSignals').textContent = totalSignals;
+  $('#uniqueCoins').textContent = uniqueCoins;
+  $('#maxPctEver').textContent = '%' + maxPctEver.toFixed(2);
+  $('#avgDuration').textContent = avgDuration.toFixed(1) + 's';
+  $('#totalVolume').textContent = fmtTL(totalVolume);
+  $('#todaySignals').textContent = todaySignals;
+  
+  const coinSelect = $('#filterCoin');
+  const currentVal = coinSelect.value;
+  coinSelect.innerHTML = '<option value="">Tümü</option>';
+  entries.forEach(([sym]) => {
+    const opt = document.createElement('option');
+    opt.value = sym;
+    opt.textContent = sym;
+    coinSelect.appendChild(opt);
+  });
+  coinSelect.value = currentVal;
+  
+  renderOverviewTab(filtered);
+  renderDetailedTab(filtered);
+  renderRangesTab(filtered);
+  renderTimelineTab(filtered);
+}
+
+function renderOverviewTab(filtered) {
+  const tbody = $('#statsBody');
+  const frag = document.createDocumentFragment();
+  
+  filtered.forEach(([sym, data]) => {
+    const avgPct = data.count > 0 ? data.sumPct / data.count : 0;
+    const avgQty = data.count > 0 ? data.totalQty / data.count : 0;
+    const avgValue = data.count > 0 ? data.totalValue / data.count : 0;
+    const avgDuration = data.count > 0 ? data.totalDuration / data.count : 0;
+    
+    const tr = document.createElement('tr');
+    tr.className = 'clickable';
+    tr.innerHTML = `
+      <td><strong>${sym}</strong></td>
+      <td class="count">${data.count}</td>
+      <td class="max-pct">%${data.maxPct.toFixed(2)}</td>
+      <td>%${avgPct.toFixed(2)}</td>
+      <td>${fmtNum(avgQty)}</td>
+      <td>${fmtTL(avgValue)}</td>
+      <td>${avgDuration.toFixed(1)}s</td>
+      <td style="font-size:11px;color:var(--muted)">${data.lastTime}</td>
+    `;
+    frag.appendChild(tr);
+  });
+  
+  tbody.innerHTML = '';
+  tbody.appendChild(frag);
+}
+
+function renderDetailedTab(filtered) {
+  const tbody = $('#detailedBody');
+  const frag = document.createDocumentFragment();
+  
+  const allRecords = [];
+  filtered.forEach(([sym, data]) => {
+    data.records.forEach(r => {
+      allRecords.push({ sym, ...r });
+    });
+  });
+  
+  allRecords.sort((a, b) => new Date(b.time) - new Date(a.time));
+  
+  allRecords.slice(0, 200).forEach(r => {
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td><strong>${r.sym}</strong></td>
+      <td class="max-pct">%${r.pct.toFixed(2)}</td>
+      <td>${fmtNum(r.qty)}</td>
+      <td>${fmtTL(r.value)}</td>
+      <td>${r.duration.toFixed(1)}s</td>
+      <td style="font-size:11px;color:var(--muted)">${r.time}</td>
+    `;
+    frag.appendChild(tr);
+  });
+  
+  tbody.innerHTML = '';
+  tbody.appendChild(frag);
+}
+
+function renderRangesTab(filtered) {
+  const content = $('#rangesContent');
+  
+  const ranges = {};
+  filtered.forEach(([sym, data]) => {
+    Object.entries(data.rangeBreakdown || {}).forEach(([range, count]) => {
+      if (!ranges[range]) ranges[range] = { total: 0, coins: {} };
+      ranges[range].total += count;
+      ranges[range].coins[sym] = (ranges[range].coins[sym] || 0) + count;
+    });
+  });
+  
+  const rangeOrder = ['0-0.3','0.3-0.4','0.4-0.5','0.5-0.6','0.6-0.7','0.7-0.8','0.8-0.9','0.9-1.0','1.0-1.5','1.5-2.0','2.0+'];
+  
+  let html = '<table class="stats-table"><thead><tr><th>Fark Aralığı</th><th>Toplam</th><th>Coin Dağılımı</th></tr></thead><tbody>';
+  
+  rangeOrder.forEach(range => {
+    if (ranges[range]) {
+      const r = ranges[range];
+      const coinList = Object.entries(r.coins)
+        .sort((a, b) => b[1] - a[1])
+        .slice(0, 5)
+        .map(([sym, cnt]) => `${sym}(${cnt})`)
+        .join(', ');
+      
+      html += `<tr>
+        <td><strong>%${range}</strong></td>
+        <td class="count">${r.total}</td>
+        <td style="font-size:12px">${coinList}</td>
+      </tr>`;
+    }
+  });
+  
+  html += '</tbody></table>';
+  content.innerHTML = html;
+}
+
+function renderTimelineTab(filtered) {
+  const content = $('#timelineContent');
+  
+  const hourly = {};
+  const now = new Date();
+  
+  filtered.forEach(([sym, data]) => {
+    data.records.forEach(r => {
+      const d = new Date(r.time);
+      const hourDiff = Math.floor((now - d) / (1000 * 60 * 60));
+      if (hourDiff < 24) {
+        const hourKey = d.getHours() + ':00';
+        if (!hourly[hourKey]) hourly[hourKey] = { count: 0, coins: new Set() };
+        hourly[hourKey].count++;
+        hourly[hourKey].coins.add(sym);
+      }
+    });
+  });
+  
+  let html = '<table class="stats-table"><thead><tr><th>Saat</th><th>Sinyal</th><th>Coinler</th></tr></thead><tbody>';
+  
+  for (let h = 0; h < 24; h++) {
+    const hourKey = h.toString().padStart(2, '0') + ':00';
+    const data = hourly[hourKey];
+    if (data) {
+      html += `<tr>
+        <td><strong>${hourKey}</strong></td>
+        <td class="count">${data.count}</td>
+        <td style="font-size:12px">${Array.from(data.coins).join(', ')}</td>
+      </tr>`;
+    }
+  }
+  
+  html += '</tbody></table>';
+  content.innerHTML = html;
+}
+
+function exportStats() {
+  const data = { exportTime: nowFull(), threshold: statsThreshold, stats: coinStats };
+  const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `arbitraj-stats-${new Date().toISOString().split('T')[0]}.json`;
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+function exportCSV() {
+  const rows = [['Coin','Sinyal','Max%','Ort%','OrtMiktar','OrtTL','OrtSure','SonSinyal']];
+  Object.entries(coinStats).forEach(([sym, data]) => {
+    const avgPct = data.count > 0 ? data.sumPct / data.count : 0;
+    const avgQty = data.count > 0 ? data.totalQty / data.count : 0;
+    const avgValue = data.count > 0 ? data.totalValue / data.count : 0;
+    const avgDuration = data.count > 0 ? data.totalDuration / data.count : 0;
+    rows.push([sym, data.count, data.maxPct.toFixed(2), avgPct.toFixed(2), avgQty.toFixed(4), avgValue.toFixed(0), avgDuration.toFixed(1), data.lastTime]);
+  });
+  
+  const csv = rows.map(r => r.join(',')).join('\n');
+  const blob = new Blob([csv], { type: 'text/csv' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `arbitraj-stats-${new Date().toISOString().split('T')[0]}.csv`;
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+function clearStats() {
+  if (confirm('Tüm istatistikler silinecek. Emin misiniz?')) {
+    coinStats = {};
+    activeSignals.clear();
+    LS.set('arbi:coinStatsV2', {});
+    updateSignalCounter();
+    renderStatsModal();
+  }
+}
+
+// ===== THEME =====
+function applyTheme(mode){
+  document.documentElement.classList.remove('theme-dark','theme-light');
+  document.documentElement.classList.add(mode==='light' ? 'theme-light' : 'theme-dark');
+  elThemeSel.value = mode;
+  LS.set('arbi:theme', mode);
+  themeMode = mode;
+}
+
+function renderChips(){
+  const wrap = $('#chips'); wrap.innerHTML='';
+  Array.from(watched).sort().forEach(sym=>{
+    const d = document.createElement('div'); d.className='chip';
+    d.innerHTML = `<span>${sym}</span>`;
+    const b = document.createElement('button'); b.textContent='×';
+    b.onclick = ()=>{
+      watched.delete(sym);
+      coinCache.delete(sym);
+      LS.set('arbi:watched', Array.from(watched));
+      elCnt.textContent = watched.size; renderChips();
+    };
+    d.appendChild(b); wrap.appendChild(d);
+  });
+  elCnt.textContent = watched.size;
+}
+
+function schedule(ms){
+  refreshMs = Math.max(100, Math.min(2000, ms|0));
+  elRng.value = refreshMs;
+  elRngLbl.textContent = (refreshMs/1000).toFixed(2)+' sn';
+  LS.set('arbi:interval', refreshMs);
+  if(timer) clearInterval(timer);
+  timer = setInterval(tick, refreshMs);
+}
+
+// ===== EVENT LISTENERS =====
+$('#add').onclick = ()=>{
+  const raw = $('#coinIn').value;
+  const syms = raw.split(/[,\s]+/).map(s => norm(s)).filter(Boolean);
+  syms.forEach(sym => watched.add(sym));
+  LS.set('arbi:watched', Array.from(watched));
+  renderChips();
+  $('#coinIn').value='';
+};
+$('#coinIn').addEventListener('keydown',(e)=>{ if(e.key==='Enter') $('#add').click(); });
+
+$('#clear').onclick = ()=>{
+  watched.clear();
+  coinCache.clear();
+  LS.set('arbi:watched', []);
+  renderChips(); elBody.innerHTML='';
+};
+
+elRng.addEventListener('input', e=> schedule(Number(e.target.value)));
+elMin.addEventListener('input', e=>{
+  minPctFilter = Number(e.target.value)||0;
+  LS.set('arbi:minpct', minPctFilter);
+});
+elStatsThreshold.addEventListener('input', e=>{
+  statsThreshold = Number(e.target.value)||0.3;
+  LS.set('arbi:statsThreshold', statsThreshold);
+});
+
+elThemeSel.addEventListener('change', (e)=> applyTheme(e.target.value));
+$('#toggleTheme').onclick = ()=> applyTheme(themeMode==='dark' ? 'light' : 'dark');
+
+// Modal
+$('#showStats').onclick = () => {
+  renderStatsModal();
+  $('#statsModal').classList.add('active');
+};
+$('#closeStats').onclick = () => $('#statsModal').classList.remove('active');
+$('#statsModal').onclick = (e) => {
+  if (e.target === $('#statsModal')) $('#statsModal').classList.remove('active');
+};
+$('#exportStats').onclick = exportStats;
+$('#exportCSV').onclick = exportCSV;
+$('#clearStats').onclick = clearStats;
+$('#applyFilter').onclick = renderStatsModal;
+
+// Tabs
+$$('.tab').forEach(tab => {
+  tab.onclick = () => {
+    $$('.tab').forEach(t => t.classList.remove('active'));
+    tab.classList.add('active');
+    $$('.tab-content').forEach(c => c.style.display = 'none');
+    $(`#tab-${tab.dataset.tab}`).style.display = 'block';
+  };
+});
+
+// ===== INIT =====
+(function init(){
+  applyTheme(themeMode);
+  renderChips();
+  elMin.value = minPctFilter;
+  elStatsThreshold.value = statsThreshold;
+  schedule(refreshMs || 300);
+  elLast.textContent = nowStr();
+  updateSignalCounter();
+})();
+
+setInterval(()=>{ if(watched.size===0) elLast.textContent = nowStr(); }, 1000);
+
+console.log('⚡ DETAYLI İSTATİSTİK MOD - Aktif!');
+console.log(`📊 ${statsThreshold}% üstü farklar: miktar, TL değer, süre kaydediliyor`);
+</script>
+</body>
+</html>

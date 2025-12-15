@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Arbitraj İstatistikleri - 7/24</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { 
+      font-family: system-ui, -apple-system, sans-serif; 
+      background: #0b1220; 
+      color: #e6edf6; 
+      padding: 20px;
+      min-height: 100vh;
+    }
+    .container { max-width: 1400px; margin: 0 auto; }
+    h1 { color: #6366f1; margin-bottom: 20px; display: flex; align-items: center; gap: 10px; }
+    h2 { color: #9fb0ca; margin: 20px 0 10px; font-size: 1.1rem; }
+    
+    .status { 
+      display: inline-flex; 
+      align-items: center; 
+      gap: 8px; 
+      padding: 4px 12px; 
+      border-radius: 20px; 
+      font-size: 0.85rem;
+      font-weight: 600;
+    }
+    .status.online { background: #166534; color: #4ade80; }
+    .status.offline { background: #7f1d1d; color: #f87171; }
+    
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-bottom: 20px; }
+    .card {
+      background: #131d2e;
+      border: 1px solid #1e3a5f;
+      border-radius: 12px;
+      padding: 20px;
+    }
+    .card-title { color: #9fb0ca; font-size: 0.85rem; margin-bottom: 5px; }
+    .card-value { font-size: 1.8rem; font-weight: 700; color: #e6edf6; }
+    .card-value.green { color: #22c55e; }
+    .card-value.blue { color: #6366f1; }
+    .card-value.yellow { color: #eab308; }
+    
+    table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+    th, td { padding: 12px; text-align: left; border-bottom: 1px solid #1e3a5f; }
+    th { background: #0d1929; color: #9fb0ca; font-weight: 600; }
+    tr:hover { background: #1a2d45; }
+    
+    .signal-row { font-size: 0.9rem; }
+    .signal-row .sym { font-weight: 700; color: #6366f1; }
+    .signal-row .sell { color: #22c55e; }
+    .signal-row .buy { color: #ef4444; }
+    .signal-row .pct { font-weight: 600; }
+    .signal-row .time { color: #9fb0ca; font-size: 0.8rem; }
+    
+    .tabs { display: flex; gap: 10px; margin-bottom: 15px; flex-wrap: wrap; }
+    .tab {
+      padding: 8px 16px;
+      background: #131d2e;
+      border: 1px solid #1e3a5f;
+      border-radius: 8px;
+      cursor: pointer;
+      color: #9fb0ca;
+      font-size: 0.9rem;
+    }
+    .tab:hover { background: #1a2d45; }
+    .tab.active { background: #6366f1; color: white; border-color: #6366f1; }
+    
+    .refresh-btn {
+      padding: 8px 16px;
+      background: #6366f1;
+      border: none;
+      border-radius: 8px;
+      color: white;
+      cursor: pointer;
+      font-size: 0.9rem;
+    }
+    .refresh-btn:hover { background: #4f46e5; }
+    
+    .export-btn {
+      padding: 8px 16px;
+      background: #166534;
+      border: none;
+      border-radius: 8px;
+      color: white;
+      cursor: pointer;
+      font-size: 0.9rem;
+    }
+    .export-btn:hover { background: #15803d; }
+    
+    .actions { display: flex; gap: 10px; margin-bottom: 20px; flex-wrap: wrap; align-items: center; }
+    
+    .active-signals {
+      background: linear-gradient(135deg, #1e3a5f 0%, #131d2e 100%);
+      border: 2px solid #6366f1;
+      padding: 15px;
+      border-radius: 12px;
+      margin-bottom: 20px;
+    }
+    .active-signals h3 { color: #6366f1; margin-bottom: 10px; }
+    .active-item {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 12px;
+      background: #0b1220;
+      border-radius: 8px;
+      margin: 4px;
+      font-size: 0.9rem;
+    }
+    
+    .symbol-card {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 12px;
+      background: #0d1929;
+      border-radius: 8px;
+      margin-bottom: 8px;
+    }
+    .symbol-card .name { font-weight: 700; color: #6366f1; }
+    .symbol-card .stats { display: flex; gap: 20px; font-size: 0.85rem; color: #9fb0ca; }
+    
+    @media (max-width: 768px) {
+      .grid { grid-template-columns: 1fr 1fr; }
+      .card-value { font-size: 1.4rem; }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>
+      📊 Arbitraj İstatistikleri
+      <span id="status" class="status offline">● Bağlanıyor...</span>
+    </h1>
+    
+    <div class="actions">
+      <button class="refresh-btn" onclick="loadAll()">🔄 Yenile</button>
+      <a id="exportLink" class="export-btn" href="/api/stats/export" target="_blank">📥 Dışa Aktar (JSON)</a>
+      <a href="/" class="tab">← Ana Sayfa</a>
+      <span id="lastUpdate" style="color:#9fb0ca; font-size:0.85rem;"></span>
+    </div>
+    
+    <div id="activeSignals" class="active-signals" style="display:none;">
+      <h3>🔴 Aktif Sinyaller</h3>
+      <div id="activeList"></div>
+    </div>
+    
+    <div class="grid">
+      <div class="card">
+        <div class="card-title">Toplam Sinyal</div>
+        <div id="totalSignals" class="card-value blue">0</div>
+      </div>
+      <div class="card">
+        <div class="card-title">Toplam Değer (TL)</div>
+        <div id="totalValue" class="card-value green">0</div>
+      </div>
+      <div class="card">
+        <div class="card-title">Max % Fark</div>
+        <div id="maxPct" class="card-value yellow">0%</div>
+      </div>
+      <div class="card">
+        <div class="card-title">Çalışma Süresi</div>
+        <div id="uptime" class="card-value">0</div>
+      </div>
+      <div class="card">
+        <div class="card-title">USDT/TRY</div>
+        <div id="usdtTry" class="card-value">0</div>
+      </div>
+      <div class="card">
+        <div class="card-title">WebSocket</div>
+        <div id="wsStatus" class="card-value">-</div>
+      </div>
+    </div>
+    
+    <div class="tabs">
+      <div class="tab active" data-tab="signals">Son Sinyaller</div>
+      <div class="tab" data-tab="symbols">Semboller</div>
+      <div class="tab" data-tab="daily">Günlük</div>
+      <div class="tab" data-tab="hourly">Saatlik</div>
+    </div>
+    
+    <div id="tabContent">
+      <!-- Tab içerikleri buraya -->
+    </div>
+  </div>
+  
+  <script>
+    const API_URL = window.location.origin;
+    let currentTab = 'signals';
+    
+    async function fetchJson(url) {
+      try {
+        const res = await fetch(API_URL + url);
+        return await res.json();
+      } catch (e) {
+        console.error(e);
+        return null;
+      }
+    }
+    
+    async function loadStats() {
+      const data = await fetchJson('/api/stats');
+      if (!data) {
+        document.getElementById('status').className = 'status offline';
+        document.getElementById('status').textContent = '● Bağlantı Yok';
+        return;
+      }
+      
+      document.getElementById('status').className = 'status online';
+      document.getElementById('status').textContent = '● Çalışıyor';
+      
+      document.getElementById('totalSignals').textContent = data.totalSignals.toLocaleString();
+      document.getElementById('totalValue').textContent = Math.round(data.totalValue).toLocaleString() + ' ₺';
+      document.getElementById('maxPct').textContent = '%' + data.maxPct.toFixed(2) + (data.maxPctSymbol ? ` (${data.maxPctSymbol})` : '');
+      document.getElementById('uptime').textContent = data.uptimeStr;
+      document.getElementById('usdtTry').textContent = data.usdtTry ? data.usdtTry.toFixed(2) : '-';
+      document.getElementById('wsStatus').textContent = data.wsConnected ? '✅ Bağlı' : '❌ Kopuk';
+      document.getElementById('wsStatus').className = 'card-value ' + (data.wsConnected ? 'green' : '');
+      
+      document.getElementById('lastUpdate').textContent = 'Son: ' + new Date().toLocaleTimeString('tr-TR');
+      
+      // Aktif sinyaller
+      if (data.activeSignals && data.activeSignals.length > 0) {
+        document.getElementById('activeSignals').style.display = 'block';
+        document.getElementById('activeList').innerHTML = data.activeSignals.map(s => {
+          const duration = ((Date.now() - s.startTime) / 1000).toFixed(0);
+          return `<div class="active-item">
+            <span class="sym">${s.sym}</span>
+            <span class="${s.direction}">${s.direction === 'sell' ? 'SAT' : 'AL'}</span>
+            <span>%${s.maxPct.toFixed(2)}</span>
+            <span>${duration}sn</span>
+          </div>`;
+        }).join('');
+      } else {
+        document.getElementById('activeSignals').style.display = 'none';
+      }
+    }
+    
+    async function loadSignals() {
+      const data = await fetchJson('/api/stats/signals?limit=100');
+      if (!data) return '<p>Veri yüklenemedi</p>';
+      
+      if (data.signals.length === 0) return '<p style="color:#9fb0ca;">Henüz sinyal kaydı yok</p>';
+      
+      return `<table>
+        <thead>
+          <tr><th>Zaman</th><th>Coin</th><th>Yön</th><th>% Fark</th><th>Miktar</th><th>Değer</th><th>Süre</th></tr>
+        </thead>
+        <tbody>
+          ${data.signals.map(s => `
+            <tr class="signal-row">
+              <td class="time">${new Date(s.timestamp).toLocaleString('tr-TR')}</td>
+              <td class="sym">${s.sym}</td>
+              <td class="${s.direction}">${s.direction === 'sell' ? '🟢 SAT' : '🔴 AL'}</td>
+              <td class="pct" style="color:${s.pct >= 1 ? '#eab308' : '#22c55e'}">%${s.pct.toFixed(2)}</td>
+              <td>${s.qty.toFixed(2)}</td>
+              <td>${Math.round(s.value).toLocaleString()} ₺</td>
+              <td>${s.duration.toFixed(1)}sn</td>
+            </tr>
+          `).join('')}
+        </tbody>
+      </table>`;
+    }
+    
+    async function loadSymbols() {
+      const data = await fetchJson('/api/stats/symbols');
+      if (!data || Object.keys(data).length === 0) return '<p style="color:#9fb0ca;">Henüz veri yok</p>';
+      
+      const sorted = Object.entries(data).sort((a, b) => b[1].count - a[1].count);
+      
+      return sorted.map(([sym, s]) => `
+        <div class="symbol-card">
+          <span class="name">${sym}</span>
+          <div class="stats">
+            <span>📊 ${s.count} sinyal</span>
+            <span>📈 Max %${s.maxPct.toFixed(2)}</span>
+            <span>📉 Ort %${s.avgPct.toFixed(2)}</span>
+            <span>💰 ${Math.round(s.totalValue).toLocaleString()} ₺</span>
+            <span>⏱️ ${Math.round(s.totalDuration)}sn</span>
+          </div>
+        </div>
+      `).join('');
+    }
+    
+    async function loadDaily() {
+      const data = await fetchJson('/api/stats/daily');
+      if (!data || Object.keys(data).length === 0) return '<p style="color:#9fb0ca;">Henüz veri yok</p>';
+      
+      const sorted = Object.entries(data).sort((a, b) => b[0].localeCompare(a[0]));
+      
+      return `<table>
+        <thead>
+          <tr><th>Tarih</th><th>Sinyal</th><th>Toplam Değer</th><th>Max %</th></tr>
+        </thead>
+        <tbody>
+          ${sorted.map(([day, d]) => `
+            <tr>
+              <td>${day}</td>
+              <td>${d.count}</td>
+              <td>${Math.round(d.value).toLocaleString()} ₺</td>
+              <td style="color:#eab308;">%${d.maxPct.toFixed(2)}</td>
+            </tr>
+          `).join('')}
+        </tbody>
+      </table>`;
+    }
+    
+    async function loadHourly() {
+      const data = await fetchJson('/api/stats/hourly');
+      if (!data || Object.keys(data).length === 0) return '<p style="color:#9fb0ca;">Henüz veri yok</p>';
+      
+      const sorted = Object.entries(data).sort((a, b) => b[0].localeCompare(a[0]));
+      
+      return `<table>
+        <thead>
+          <tr><th>Saat</th><th>Sinyal</th><th>Değer</th></tr>
+        </thead>
+        <tbody>
+          ${sorted.map(([hour, h]) => `
+            <tr>
+              <td>${hour.replace('T', ' ')}</td>
+              <td>${h.count}</td>
+              <td>${Math.round(h.value).toLocaleString()} ₺</td>
+            </tr>
+          `).join('')}
+        </tbody>
+      </table>`;
+    }
+    
+    async function loadTab(tab) {
+      currentTab = tab;
+      document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+      document.querySelector(`.tab[data-tab="${tab}"]`).classList.add('active');
+      
+      let content = '<p>Yükleniyor...</p>';
+      
+      switch(tab) {
+        case 'signals': content = await loadSignals(); break;
+        case 'symbols': content = await loadSymbols(); break;
+        case 'daily': content = await loadDaily(); break;
+        case 'hourly': content = await loadHourly(); break;
+      }
+      
+      document.getElementById('tabContent').innerHTML = content;
+    }
+    
+    async function loadAll() {
+      await loadStats();
+      await loadTab(currentTab);
+    }
+    
+    // Tab click
+    document.querySelectorAll('.tab').forEach(tab => {
+      tab.addEventListener('click', () => loadTab(tab.dataset.tab));
+    });
+    
+    // İlk yükleme
+    loadAll();
+    
+    // Her 5 saniyede güncelle
+    setInterval(loadStats, 5000);
+    setInterval(() => loadTab(currentTab), 10000);
+  </script>
+</body>
+</html>
